@@ -16,6 +16,13 @@ public class Cam
     public int Channel { get; set; } = 1;
     public string CustomUrl { get; set; } = "";
 
+    // Tanı için: şifresi *** ile gizlenmiş adres
+    public string MaskedUrl(bool main)
+    {
+        string u = Url(main);
+        return string.IsNullOrEmpty(Pass) ? u : u.Replace(Uri.EscapeDataString(Pass), "***");
+    }
+
     // main = true: ana akış (büyük ekran), false: alt akış (3x3 ızgara, daha hafif)
     public string Url(bool main)
     {
