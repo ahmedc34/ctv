@@ -1,0 +1,27 @@
+name: CtvViewer exe derle
+
+on:
+  workflow_dispatch:      # Actions sekmesinden elle başlat
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Tek exe uret
+        shell: cmd
+        run: call build.bat
+
+      - name: Exe'yi yukle
+        uses: actions/upload-artifact@v4
+        with:
+          name: CtvViewer
+          path: dist/CtvViewer.exe
+          if-no-files-found: error
