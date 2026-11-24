@@ -120,7 +120,7 @@ class CamEditForm : Form
         StartPosition = FormStartPosition.CenterParent;
         MaximizeBox = MinimizeBox = false;
 
-        brand.Items.AddRange(new object[] { "Hikvision", "Dahua", "Uniview", "Diger" });
+        brand.Items.AddRange(new object[] { "Hikvision", "Dahua", "Uniview", "Pelco", "Diger" });
         brand.SelectedItem = brand.Items.Contains(c.Brand) ? c.Brand : "Diger";
 
         string[] labels = { "Kamera adı", "IP adresi", "Kullanıcı adı", "Şifre", "Marka", "Port", "Kanal", "Özel RTSP" };
