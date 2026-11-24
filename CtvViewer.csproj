@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>CtvViewer</AssemblyName>
+    <RootNamespace>CtvViewer</RootNamespace>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <DefaultItemExcludes>$(DefaultItemExcludes);tmp\**;dist\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <!-- build.bat 2. adımda libvlc.zip üretir, 3. adımda exe'nin içine gömülür -->
+  <ItemGroup Condition="Exists('libvlc.zip')">
+    <EmbeddedResource Include="libvlc.zip" LogicalName="libvlc.zip" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibVLCSharp.WinForms" Version="3.8.5" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.20" />
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>
