@@ -512,6 +512,7 @@ public class MainForm : Form
             new Cam { Name = "Giriş", Ip = "192.168.1.64", User = "admin", Pass = "12345", Brand = "Hikvision" },
             new Cam { Name = "Otopark", Ip = "192.168.1.108", User = "admin", Pass = "12345", Brand = "Dahua" },
             new Cam { Name = "Depo", Ip = "192.168.1.201", User = "admin", Pass = "12345", Brand = "Uniview" },
+            new Cam { Name = "Pelco", Ip = "192.168.1.60", User = "", Pass = "", Brand = "Pelco" },
             new Cam { Name = "Diğer marka", Ip = "192.168.1.50", User = "admin", Pass = "12345", Brand = "Diger",
                       CustomUrl = "rtsp://{user}:{pass}@{ip}:{port}/stream1" }
         };
