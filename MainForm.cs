@@ -167,7 +167,7 @@ public class MainForm : Form
         bigView = new VideoView { Dock = DockStyle.Fill, BackColor = Color.Black };
         var top = new Panel { Dock = DockStyle.Top, Height = 32, BackColor = Color.FromArgb(55, 55, 55) };
         bigTitle = new Label { Dock = DockStyle.Fill, ForeColor = Color.White, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 10f, FontStyle.Bold) };
-        var back = new Button { Text = "◀ Izgaraya dön (Esc)", Dock = DockStyle.Right, Width = 180, ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+        var back = new Button { Text = "◀ Izgaraya dön (Esc)", Dock = DockStyle.Right, Width = 180, FlatStyle = FlatStyle.Flat, UseVisualStyleBackColor = false, BackColor = Color.FromArgb(85, 85, 85), ForeColor = Color.White };
         back.Click += (s, e) => CloseBig();
         var bigTools = new FlowLayoutPanel { Dock = DockStyle.Right, AutoSize = true, WrapContents = false, BackColor = top.BackColor };
         var bigConn = Tiny("Bağlan");
@@ -211,7 +211,7 @@ public class MainForm : Form
 
     static Button Btn(string text, EventHandler click)
     {
-        var b = new Button { Text = text, AutoSize = true, Height = 30, ForeColor = Color.Black };
+        var b = new Button { Text = text, AutoSize = true, Height = 30, FlatStyle = FlatStyle.Flat, UseVisualStyleBackColor = false, BackColor = Color.Gainsboro, ForeColor = Color.Black };
         b.Click += click;
         return b;
     }
