@@ -37,6 +37,7 @@ public class MainForm : Form
     public MainForm(bool admin)
     {
         isAdmin = admin;
+        HookLog();
         Text = "CTV İzleme" + (isAdmin ? " (Admin)" : "") + "  |  design by ahmedc";
         WindowState = FormWindowState.Maximized;
         MinimumSize = new Size(1000, 600);
@@ -158,6 +159,8 @@ public class MainForm : Form
             views[i] = view;
             titles[i] = title;
             mps[i] = new MediaPlayer(vlc) { Mute = true };
+            mps[i].EncounteredError += (s, e) => UiState(() => SetState(cell, "HATA: görüntü alınamadı"));
+            mps[i].Playing += (s, e) => UiState(() => SetState(cell, "oynatılıyor"));
         }
         grid.DragEnter += Grid_DragEnter;
         grid.DragDrop += Grid_Drop;
@@ -183,6 +186,8 @@ public class MainForm : Form
         bigPanel.Controls.Add(bigView);
         bigPanel.Controls.Add(top);
         bigMp = new MediaPlayer(vlc) { Mute = true };
+        bigMp.EncounteredError += (s, e) => UiState(() => BigState("HATA: görüntü alınamadı"));
+        bigMp.Playing += (s, e) => UiState(() => BigState("oynatılıyor"));
 
         var center = new Panel { Dock = DockStyle.Fill };
         center.Controls.Add(grid);
@@ -246,6 +251,43 @@ public class MainForm : Form
         }
     }
 
+    // ---------- tanı: durum yazısı ve günlük (C:\ctv\vlc.log) ----------
+
+    static readonly object logLock = new();
+
+    static void LogLine(string s)
+    {
+        try
+        {
+            Directory.CreateDirectory(@"C:\ctv");
+            lock (logLock) File.AppendAllText(@"C:\ctv\vlc.log", $"{DateTime.Now:HH:mm:ss} {s}\r\n");
+        }
+        catch { }
+    }
+
+    void HookLog()
+    {
+        try { File.Delete(@"C:\ctv\vlc.log"); } catch { }
+        vlc.Log += (s, e) =>
+        {
+            if (e.Level >= LogLevel.Warning) LogLine($"[{e.Level}] {e.Module}: {e.Message}");
+        };
+    }
+
+    // VLC olayları farklı thread'den gelir, arayüze güvenli aktar
+    void UiState(Action a)
+    {
+        try { if (IsHandleCreated && !IsDisposed) BeginInvoke(a); } catch { }
+    }
+
+    void SetState(int i, string txt)
+    {
+        int idx = page * PER + i;
+        if (idx >= cams.Count || closed[i] || paused[i] || bigPanel.Visible) return;
+        titles[i].Text = $"  {idx + 1}. {cams[idx].Name}  [{txt}]";
+        if (txt.StartsWith("HATA")) LogLine($"KAMERA {idx + 1} ({cams[idx].Name}): {txt}  adres: {cams[idx].MaskedUrl(false)}");
+    }
+
     static Button Tiny(string text) => new Button
     {
         Text = text, AutoSize = true, FlatStyle = FlatStyle.Flat, ForeColor = Color.White,
@@ -259,6 +301,7 @@ public class MainForm : Form
         int idx = page * PER + i;
         if (idx >= cams.Count) return;
         mps[i].Stop();
+        LogLine($"PLAY kamera {idx + 1}: {cams[idx].MaskedUrl(false)}");
         using var m = new Media(vlc, cams[idx].Url(false), FromType.FromLocation, ":rtsp-tcp", ":network-caching=300");
         mps[i].Play(m);
     }
@@ -297,7 +340,14 @@ public class MainForm : Form
 
     // ---------- büyük ekran kontrolleri ----------
 
-    string BigName() => $"  {bigIdx + 1}. {cams[bigIdx].Name}  ({cams[bigIdx].Ip})";
+    string BigName() => $"  {bigIdx + 1}. {cams[bigIdx].Name}  {cams[bigIdx].MaskedUrl(true)}";
+
+    void BigState(string txt)
+    {
+        if (bigIdx < 0 || bigIdx >= cams.Count || !bigPanel.Visible || bigPaused) return;
+        bigTitle.Text = BigName() + $"  [{txt}]";
+        LogLine($"BÜYÜK EKRAN: {txt}");
+    }
 
     void BigReconnect()
     {
@@ -305,6 +355,7 @@ public class MainForm : Form
         bigPaused = false; bigPauseBtn.Text = "Pause";
         bigTitle.Text = BigName();
         bigMp.Stop();
+        LogLine($"PLAY büyük ekran: {cams[bigIdx].MaskedUrl(true)}");
         using var media = new Media(vlc, cams[bigIdx].Url(true), FromType.FromLocation, ":rtsp-tcp", ":network-caching=300");
         bigMp.Play(media);
     }
