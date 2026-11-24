@@ -32,12 +32,15 @@ public class Cam
             return CustomUrl.Replace("{user}", u).Replace("{pass}", p).Replace("{ip}", Ip)
                             .Replace("{port}", Port.ToString()).Replace("{ch}", Channel.ToString());
 
-        string head = $"rtsp://{u}:{p}@{Ip}:{Port}";
+        // Kullanıcı adı boşsa adreste şifre bölümü olmaz (örn. Pelco: rtsp://ip/stream1)
+        string cred = string.IsNullOrEmpty(User) ? "" : $"{u}:{p}@";
+        string head = $"rtsp://{cred}{Ip}:{Port}";
         return (Brand ?? "").ToLowerInvariant() switch
         {
             "hikvision" => $"{head}/Streaming/Channels/{Channel}0{(main ? 1 : 2)}",
             "dahua"     => $"{head}/cam/realmonitor?channel={Channel}&subtype={(main ? 0 : 1)}",
             "uniview"   => $"{head}/unicast/c{Channel}/s{(main ? 0 : 1)}/live",
+            "pelco"     => $"{head}/stream1",   // ızgara ve büyük ekran aynı akış
             _           => head + "/"
         };
     }
